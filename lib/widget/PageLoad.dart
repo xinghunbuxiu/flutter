@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 typedef BuildItemWidget<T> = Widget Function(BuildContext context, T t);
-typedef BuildItem<T> = Widget Function(BuildContext context, T t);
+typedef BuildItem = Widget Function(BuildContext context, dynamic t);
 typedef OnLoad = int Function(int page);
 
 class BaseQuickAdapter<T> {
@@ -12,8 +12,8 @@ class BaseQuickAdapter<T> {
   bool headAndEmptyEnable;
   bool enableLoadMore;
   Widget emptyWidget;
-  List<HeaderAndFooterItemWidget> headers;
-  List<HeaderAndFooterItemWidget> footers;
+  List<dynamic> headers = new List();
+  List<dynamic> footers = new List();
   static const HEADER_VIEW = 0x00000111;
   static const LOADING_VIEW = 0x00000222;
   static const FOOTER_VIEW = 0x00000333;
@@ -21,6 +21,8 @@ class BaseQuickAdapter<T> {
   static const INVALID_TYPE = -1;
   WidgetHolder holder = new WidgetHolder();
   BuildItemWidget<T> itemBuilder;
+  BuildItem footerBuilder;
+  BuildItem headerBuilder;
   OnLoad onLoad;
 
   BaseQuickAdapter(
@@ -28,10 +30,11 @@ class BaseQuickAdapter<T> {
       this.enableLoadMore,
       this.headAndEmptyEnable,
       this.listTotalSize,
+      this.headerBuilder,
+      this.footerBuilder,
       @required this.itemBuilder,
       @required this.onLoad,
-      this.headers = const <HeaderAndFooterItemWidget>[],
-      this.footers = const <HeaderAndFooterItemWidget>[]})
+      this.emptyWidget})
       : assert(itemBuilder != null),
         assert(onLoad != null);
 
@@ -48,6 +51,12 @@ class BaseQuickAdapter<T> {
     });
     onRefresh();
   }
+
+  set headerData(data) => headers.add(data);
+
+  set footerData(data) => footers.add(data);
+
+  set addData(List<T> data) => listData.addAll(data);
 
   /// 下拉刷新回调
   Future<Null> _pullToRefresh() async {
@@ -83,10 +92,11 @@ class BaseQuickAdapter<T> {
     int a = getItemCount();
     print("$a----$p");
     print("getItemWidget----$p");
-    Widget loadView = holder.getWidget(p);
-    if (loadView != null) {
-      return loadView;
-    }
+//    Widget loadView = holder.getWidget(p);
+//    if (loadView != null) {
+//      print("dddddd");
+//      return loadView;
+//    }
     int viewType = getItemViewType(p);
     switch (viewType) {
       case LOADING_VIEW:
@@ -94,12 +104,17 @@ class BaseQuickAdapter<T> {
         return createBaseWidgetHolder(loadView, p);
       case HEADER_VIEW:
         print('HEADER_VIEW');
-        return createBaseWidgetHolder(headers[p].build(context), p);
+        print("getItemWidget----$p");
+
+        Widget widget = headerBuilder(context, headers[p]);
+        return createBaseWidgetHolder(widget, p);
       case EMPTY_VIEW:
         return createBaseWidgetHolder(emptyWidget, p);
       case FOOTER_VIEW:
         print('FOOTER_VIEW');
-        return createBaseWidgetHolder(footers[p].build(context), p);
+        int fixIndex = p - headers.length - listData.length;
+        Widget widget = footerBuilder(context, headers[fixIndex]);
+        return createBaseWidgetHolder(widget, fixIndex);
       default:
         print('ITEM_View');
         return onCreateDefWidgetHolder(context, viewType, p);
@@ -117,6 +132,7 @@ class BaseQuickAdapter<T> {
   }
 
   Widget build(BuildContext context) {
+    print("hero");
     if (listData == null) {
       return new Center(
         child: new CircularProgressIndicator(),
@@ -143,12 +159,8 @@ class BaseQuickAdapter<T> {
     listData.addAll(data);
   }
 
-  void addData(List<T> data) {
-    listData.addAll(data);
-  }
-
   Widget getLoadingView() {
-    return null;
+    return new Container();
   }
 
   ///加载更多
@@ -205,15 +217,3 @@ abstract class MultiItemEntity {
 
 abstract class BaseMultiItemQuickAdapter<T extends MultiItemEntity>
     extends BaseQuickAdapter<T> {}
-
-class HeaderAndFooterItemWidget<T> {
-  BuildItem<T> itemBuilder;
-  T t;
-
-  HeaderAndFooterItemWidget({@required this.itemBuilder, this.t})
-      : assert(itemBuilder != null);
-
-  Widget build(BuildContext context) {
-    return itemBuilder(context, t);
-  }
-}

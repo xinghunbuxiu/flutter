@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -17,6 +18,7 @@ class HomeListPresenter extends Presenter {
       if (result != null) {
         print(state);
         print("getBanner");
+        print(result);
         state.notifyData(Message(action: 0, data: result));
       }
     });
@@ -30,8 +32,8 @@ class HomeListPresenter extends Presenter {
       if (result != null) {
         print(state);
         print("getHomeArticlelist");
-
-        state.notifyData(Message(action: 0, data: result));
+        print(result);
+        state.notifyData(Message(action: 1, data: result));
       }
     });
   }
@@ -42,31 +44,25 @@ class HomeListWidget extends UiWidget<HomeListPresenter> {
   TextStyle subtitleTextStyle =
       new TextStyle(color: Colors.blue, fontSize: 12.0);
   BaseQuickAdapter _adapter;
-  var bannerData = new List();
 
-  HomeListWidget() {
-    _adapter = new BaseQuickAdapter(
-        headers: [
-          new HeaderAndFooterItemWidget(
-              t: bannerData,
-              itemBuilder: (context, t) {
-                return new Container(
-                  child: SlideView(t),
-                  height: 180,
-                );
-              })
-        ],
-        itemBuilder: (context, t) {
-          print("ccccccccccccccccccccccccccccccccc");
-          print(t);
-          return new ArticleItem(t);
-        },
-        onLoad: (int page) {
-          if (page == 0) {
-            presenter.getBanner();
-          }
-          presenter.getHomeArticlelist(page);
-        });
+  HomeListWidget() : super(presenter: HomeListPresenter()) {
+    _adapter = new BaseQuickAdapter(headerBuilder: (context, t) {
+      print(t.toString());
+      return new Container(
+        child: SlideView(t),
+        height: 180,
+      );
+    }, itemBuilder: (context, t) {
+      print("ccccccccccccccccccccccccccccccccc");
+      print(t);
+      return new ArticleItem(t);
+    }, onLoad: (int page) {
+      print(page);
+      if (page == 0) {
+        presenter.getBanner();
+      }
+      presenter.getHomeArticlelist(page);
+    });
   }
 
   @override
@@ -77,27 +73,33 @@ class HomeListWidget extends UiWidget<HomeListPresenter> {
   }
 
   @override
+  Widget build(BuildContext context, ViewConfig config) {
+    print("HomeListWidget_build");
+    // TODO: implement build
+    return _adapter.build(context);
+  }
+
+  @override
   void dispose() {
     _adapter.dispose();
     super.dispose();
   }
 
   void notifyData(Message msg) {
-    print(msg.data);
-    print(msg.action);
+    print("HomeListWidget_notifyData");
     switch (msg.action) {
       case 0:
+        print(msg.data);
+
         setState(() {
-          bannerData = msg.data;
+          _adapter.headers = msg.data;
         });
         break;
       case 1:
+        Map<String, dynamic> map = msg.data;
+        var _listData = map['datas'];
         setState(() {
-          Map<String, dynamic> map = msg.data;
-          var _listData = map['datas'];
-          setState(() {
-            _adapter.addData(_listData);
-          });
+          _adapter.addData = _listData;
         });
         break;
     }

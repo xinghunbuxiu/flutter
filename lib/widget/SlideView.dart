@@ -8,6 +8,7 @@ class SlideView extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
+    print(data is Map);
     return new SlideViewState(data);
   }
 }
@@ -17,7 +18,9 @@ class SlideViewState extends State<SlideView>
   TabController tabController;
   List data;
 
-  SlideViewState(this.data);
+  SlideViewState(this.data) {
+    print("dd" + data.toString());
+  }
 
   @override
   void initState() {
@@ -34,6 +37,7 @@ class SlideViewState extends State<SlideView>
 
   @override
   Widget build(BuildContext context) {
+    print("SlideViewState+$data");
     List<Widget> items = [];
     if (data != null && data.length > 0) {
       for (var i = 0; i < data.length; i++) {

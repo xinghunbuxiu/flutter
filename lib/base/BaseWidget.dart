@@ -19,6 +19,7 @@ abstract class BaseState<W extends BaseWidget> extends State<W> {
 
   @override
   Widget build(BuildContext context) {
+    print("notifyStatebuild");
     return uiWidget.build(context, config);
   }
 
@@ -32,7 +33,9 @@ abstract class BaseState<W extends BaseWidget> extends State<W> {
   }
 
   void notifyState(VoidCallback fn) {
-    super.setState(fn);
+    print("notifyState");
+    print(this);
+    this.setState(fn);
   }
 }
 
