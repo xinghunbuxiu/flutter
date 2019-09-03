@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 typedef BuildItemWidget<T> = Widget Function(BuildContext context, T t);
 typedef BuildItem = Widget Function(BuildContext context, dynamic t);
-typedef OnLoad = int Function(int page);
+typedef OnLoad = void Function(int page);
 
 class BaseQuickAdapter<T> {
   ScrollController _controller;
@@ -27,7 +27,7 @@ class BaseQuickAdapter<T> {
 
   BaseQuickAdapter(
       {this.curPage,
-      this.enableLoadMore,
+      this.enableLoadMore = true,
       this.headAndEmptyEnable,
       this.listTotalSize,
       this.headerBuilder,
@@ -92,11 +92,6 @@ class BaseQuickAdapter<T> {
     int a = getItemCount();
     print("$a----$p");
     print("getItemWidget----$p");
-//    Widget loadView = holder.getWidget(p);
-//    if (loadView != null) {
-//      print("dddddd");
-//      return loadView;
-//    }
     int viewType = getItemViewType(p);
     switch (viewType) {
       case LOADING_VIEW:

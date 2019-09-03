@@ -14,7 +14,7 @@ class TabPage extends BaseWidget {
 class _WanAndroidAppState extends TabState<TabPage>
     with TickerProviderStateMixin {
   _WanAndroidAppState({appBarTitles: const ['首页', '发现', '我的']})
-      : super(children: [
+      : super(tabOptions: [
           new TabOption(
               title: appBarTitles[0],
               children: HomeListPage(),

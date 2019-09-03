@@ -1,21 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:wanAndroid/base/BaseWidget.dart';
 
-class TabState<W extends BaseWidget> extends BaseState<W> {
-  var children;
+class TabState<W extends BaseWidget> extends BaseState<W, Null> {
+  List<TabOption> tabOptions;
+  int _tabIndex = 0;
 
-  TabState({this.children = const <TabOption>[]})
+  TabState({this.tabOptions = const <TabOption>[]})
       : super(
-            uiWidget: new TabWidget(tabOptions: children),
             config: ViewConfig(
                 hasTitle: true,
                 hasBottom: true,
                 navigatorKey: GlobalKey<NavigatorState>()));
-}
-
-class TabWidget extends UiWidget {
-  List<TabOption> tabOptions;
-  int _tabIndex = 0;
 
   get title => this.tabOptions.map((child) => child.title).toList()[_tabIndex];
 
@@ -23,8 +18,6 @@ class TabWidget extends UiWidget {
       this.tabOptions.map((child) => child.navigationBarItem).toList();
 
   get child => this.tabOptions.map((child) => child.children).toList();
-
-  TabWidget({this.tabOptions});
 
   get appBar => AppBar(
           title: new Text(
@@ -44,7 +37,7 @@ class TabWidget extends UiWidget {
       );
 
   @override
-  Widget build(BuildContext context, ViewConfig config) {
+  Widget build(BuildContext context) {
     // TODO: implement build
     return MaterialApp(
         navigatorKey: config.navigatorKey,

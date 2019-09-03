@@ -19,7 +19,7 @@ class SlideViewState extends State<SlideView>
   List data;
 
   SlideViewState(this.data) {
-    print("dd" + data.toString());
+    print("ddss");
   }
 
   @override
